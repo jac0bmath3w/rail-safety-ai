@@ -1,0 +1,36 @@
+--- Core LLM & Frameworks ---
+
+langchain==0.3.0
+langchain-community
+langchain-huggingface
+llama-index==0.11.0
+
+--- Inference & GPU Optimization (The "Staff" Tech) ---
+
+transformers>=4.45.0
+torch>=2.4.0
+bitsandbytes      # Crucial for 4-bit/8-bit Quantization
+accelerate        # For efficient device mapping and distributed runs
+peft              # Parameter-Efficient Fine-Tuning (LoRA/QLoRA)
+sentence-transformers # For high-quality text embeddings
+einops            # Required for certain optimized model architectures
+
+--- Vector Database & PDF Processing ---
+
+pinecone-client   # If using cloud vector storage
+qdrant-client     # If using local/docker vector storage
+pypdf             # To extract text from your 5 railroad manuals
+unstructured[pdf] # Advanced PDF partitioning
+
+--- Evaluation & Observability (The "Architect" Tier) ---
+
+ragas             # To measure Faithfulness and Relevance of your RAG
+langsmith         # For tracing LLM calls (optional but professional)
+pandas            # For data manipulation during evaluation
+numpy
+
+--- Utilities ---
+
+python-dotenv     # To securely load your API keys from a .env file
+tqdm              # Progress bars for long processing tasks
+ipywidgets        # Required for interactive elements in Google Colab
