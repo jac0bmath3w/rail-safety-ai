@@ -4,6 +4,7 @@ langchain==0.3.0
 langchain-community
 langchain-huggingface
 llama-index==0.11.0
+langchain-text-splitters>=0.3.0
 
 # --- Inference & GPU Optimization (The "Staff" Tech) ---
 
