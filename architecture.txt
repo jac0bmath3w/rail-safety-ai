@@ -1,0 +1,19 @@
+As of 2026-04-04
+
+rail-safety-ai/
+├── data/
+│   ├── raw/             # Your 5 original PDFs
+│   └── processed/       # Extracted text and local Vector DB files (ignored by git)
+├── src/                 # THE CORE LOGIC (Python Classes)
+│   ├── __init__.py
+│   ├── ingest.py        # PDF extraction & Chunking classes
+│   ├── embed.py         # Embedding generation classes
+│   ├── vector_store.py  # Vector DB management
+│   └── engine.py        # RAG logic & LLM connection
+├── notebooks/           # THE LABORATORY (Experiments)
+│   ├── 01_ingestion.ipynb
+│   ├── 02_rag_pipeline.ipynb
+│   └── 03_evaluation.ipynb
+├── ROADMAP.md
+├── ARCHITECTURE.md      # <--- New file describing the system
+└── requirements.txt
