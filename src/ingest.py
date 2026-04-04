@@ -1,4 +1,5 @@
 import pypdf
+import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 class RailDocumentProcessor:
