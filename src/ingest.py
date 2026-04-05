@@ -10,28 +10,39 @@ class RailDocumentProcessor:
             length_function=len
         )
 
-    def extract_text_from_pdf(self, pdf_path):
-        """Extracts all text from a given PDF path."""
-        reader = pypdf.PdfReader(pdf_path)
-        full_text = ""
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                full_text += text
-        return full_text
-
-    def create_chunks(self, text):
-        """Splits text into manageable chunks for embedding."""
-        return self.splitter.split_text(text)
-
     def process_directory(self, directory_path):
-        """Processes all PDFs in a directory and returns a list of chunks."""
+        """Processes all PDFs and returns a tuple: (list_of_chunks, list_of_metadatas)."""
         all_chunks = []
+        all_metadatas = []
+
+        if not os.path.exists(directory_path):
+            print(f"Error: Directory {directory_path} not found.")
+            return [], []
+
         for filename in os.listdir(directory_path):
             if filename.endswith(".pdf"):
                 print(f"Processing: {filename}")
                 path = os.path.join(directory_path, filename)
-                text = self.extract_text_from_pdf(path)
-                chunks = self.create_chunks(text)
-                all_chunks.extend(chunks)
-        return all_chunks
+                
+                try:
+                    reader = pypdf.PdfReader(path)
+                    for i, page in enumerate(reader.pages):
+                        page_text = page.extract_text()
+                        if not page_text:
+                            continue
+                        
+                        # Create chunks for this specific page
+                        page_chunks = self.splitter.split_text(page_text)
+                        
+                        for chunk in page_chunks:
+                            all_chunks.append(chunk)
+                            # Enhanced metadata for citations and filtering
+                            all_metadatas.append({
+                                "source": filename,
+                                "page": i + 1,
+                                "char_count": len(chunk)
+                            })
+                except Exception as e:
+                    print(f"Could not process {filename}: {e}")
+                        
+        return all_chunks, all_metadatas
