@@ -24,20 +24,32 @@ class RailSafetyEngine:
         )
 
     def generate_answer(self, question, context_chunks):
-        # Build the RAG Prompt
-        context_text = "\n\n".join(context_chunks)
+        """
+        Takes a question and a list of formatted strings (including metadata).
+        """
+        # Step 1: Combine context
+        context_text = "\n".join(context_chunks)
         
+        # Step 2: The "Self-Correcting" Staff Prompt
         prompt = f"""
-        You are a BNSF Staff Safety Engineer. Use the provided FRA manual excerpts to answer the question.
+        <|begin_of_text|><|start_header_id|>system<|end_header_id|>
+        You are a BNSF Staff Safety Engineer. 
+        INSTRUCTIONS:
+        1. Correct any obvious typos in the user's question (e.g., 'separetion' -> 'separation').
+        2. Use ONLY the provided FRA manual excerpts to answer.
+        3. ALWAYS cite the Source File and Page Number for every claim you make.
+        4. If the answer isn't in the excerpts, state that clearly.
+        <|eot_id|><|start_header_id|>user<|end_header_id|>
         
         EXCERPTS:
         {context_text}
         
-        QUESTION:
-        {question}
-        
-        ANSWER:
+        USER QUESTION: {question}
+        <|eot_id|><|start_header_id|>assistant<|end_header_id|>
         """
         
-        outputs = self.pipe(prompt, do_sample=False)
-        return outputs[0]["generated_text"].split("ANSWER:")[-1].strip()
+        outputs = self.pipe(prompt, do_sample=False, temperature=0)
+        # Extract only the assistant's response
+        full_text = outputs[0]["generated_text"]
+        return full_text.split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
+        
