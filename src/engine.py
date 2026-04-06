@@ -33,7 +33,7 @@ class RailSafetyEngine:
         # Step 2: The "Self-Correcting" Staff Prompt
         prompt = f"""
         <|begin_of_text|><|start_header_id|>system<|end_header_id|>
-        You are a BNSF Staff Safety Engineer. 
+        You are a Rail Staff Safety Engineer. 
         INSTRUCTIONS:
         1. Correct any obvious typos in the user's question (e.g., 'separetion' -> 'separation').
         2. Use ONLY the provided FRA manual excerpts to answer.
