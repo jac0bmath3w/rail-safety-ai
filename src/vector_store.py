@@ -18,3 +18,19 @@ class RailVectorVault:
             metadatas=metadatas,
             ids=ids
         )
+        
+    def query(self, question, n_results=3):
+        """
+        Performs a semantic search.
+        1. Embeds the question using the injected embedder.
+        2. Queries ChromaDB for the closest matches.
+        """
+        # Embed the query string
+        query_vector = self.embedder.generate_embeddings([question])
+        
+        # Search the collection
+        results = self.collection.query(
+            query_embeddings=query_vector.tolist(),
+            n_results=n_results
+        )
+        return results
