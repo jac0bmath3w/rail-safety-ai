@@ -15,6 +15,8 @@ accelerate        # For efficient device mapping and distributed runs
 peft              # Parameter-Efficient Fine-Tuning (LoRA/QLoRA)
 sentence-transformers # For high-quality text embeddings
 einops            # Required for certain optimized model architectures
+sentencepiece 
+tiktoken
 
 # --- Vector Database & PDF Processing ---
 
