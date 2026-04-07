@@ -9,6 +9,8 @@ class RailSafetyEngine:
         # Ensure a padding token exists
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
+        # Gemma/Llama 3 padding alignment
+        self.tokenizer.padding_side = "right" 
         
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
