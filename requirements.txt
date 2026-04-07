@@ -8,7 +8,7 @@ langchain-text-splitters>=0.3.0
 
 # --- Inference & GPU Optimization (The "Staff" Tech) ---
 
-transformers>=4.45.0
+transformers>=5.5.0
 torch>=2.4.0
 bitsandbytes      # Crucial for 4-bit/8-bit Quantization
 accelerate        # For efficient device mapping and distributed runs
