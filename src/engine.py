@@ -4,8 +4,10 @@ import torch
 class RailSafetyEngine:
     def __init__(self, model_id="unsloth/Llama-3.2-3B-Instruct"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
-        
+        # self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+        # USE_FAST=False is a safety fallback for Gemma/SentencePiece issues
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id, use_fast=False)
         # Ensure a padding token exists
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -69,11 +71,13 @@ class RailSafetyEngine:
                     "You are a Senior FRA Safety Consultant. \n\n"
                     "STRICT OPERATIONAL PROTOCOL:\n"
                     "1. QUERY ANALYSIS: Correct typos and identify the primary intent (e.g., maintenance, regulatory compliance).\n"
-                    "2. INTENT VALIDATION: Distinguish between 'Establishing' a project and 'Removing' a structure. Only use relevant context.\n"
-                    "3. DATA SYNTHESIS: Extract specific numerical data, thresholds (e.g., AADT > 30,000), and technical requirements.\n"
-                    "4. AUTHORSHIP: Identify specific authors (e.g., Brent Ogden) or consulting firms (e.g., Kimley-Horn) if found.\n"
-                    "5. VERACITY: Use ONLY the provided context. If the answer is missing, state so clearly.\n"
-                    "6. CITATION: Every technical claim MUST be followed by [Manual Name, Page Number]."
+                    "2. NUMERICAL LOGIC: Treat numerical thresholds as strict logic gates. If a user provided value (e.g., 0.8 miles) is BELOW a manual threshold (e.g., 1 mile), explicitly state that the condition is met.\n"
+                    "3. INTENT VALIDATION: Distinguish between 'Establishing' a project and 'Removing' a structure. Only use relevant context.\n"
+                    "4. DATA SYNTHESIS: Extract specific numerical data, thresholds (e.g., AADT > 30,000), and technical requirements.\n"
+                    "5. AUTHORSHIP: Identify specific authors (e.g., Brent Ogden) or consulting firms (e.g., Kimley-Horn) if found.\n"
+                    "6. VERACITY: Use ONLY the provided context. If the answer is missing, state so clearly.\n"
+                    "7. CITATION: Every technical claim MUST be followed by [Manual Name, Page Number]."
+                    "8. COMPARATIVE REASONING: For multiple-choice questions, evaluate each data point against the manual criteria before selecting an option.\n"
                 )
             },
             {
