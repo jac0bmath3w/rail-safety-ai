@@ -41,20 +41,12 @@ class RailDataGenerator:
             time.sleep(delay)
         return None
 
-    def generate_training_sample(self):
+    def generate_training_sample(self, chunk_text, file_name, page_num):
         """
         1. Grab a random chunk from the vault.
         2. Ask Teacher to generate a complex question + reasoning process.
         """
-        # Get random chunks from collection
-        all_data = self.vault.collection.get()
-        if not all_data or not all_data['documents']:
-            return None
-            
-        idx = random.randint(0, len(all_data['documents']) - 1)
-        chunk_text = all_data['documents'][idx]
-        file_name = all_data['metadatas'][idx].get('source', 'Unknown')
-        page_num = all_data['metadatas'][idx].get('page', '?')
+
 
         system_prompt = (
             "You are a Senior FRA Rail Safety Expert. Your task is to generate training data "
@@ -82,10 +74,23 @@ class RailDataGenerator:
         samples = []
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
-        print(f"Starting generation of {num_samples} samples...")
-        
-        for i in range(num_samples):
-            sample = self.generate_training_sample()
+        print(f"Starting generation of {num_samples} sample(s)...")
+        # Get random chunks from collection
+        all_data = self.vault.collection.get()
+        if not all_data or not all_data['documents']:
+            return None
+        total_chunks = len(all_data['documents'])
+        # idx = random.randint(0, len(all_data['documents']) - 1)
+        actual_sample_count = min(num_samples, total_chunks)
+        indices = random.sample(range(total_chunks), actual_sample_count)
+        if num_samples >= total_chunks:
+            print(f"only {total_chunks} sample(s) available, so creating {actual_sample_count} unique sample(s)")
+
+        for idx in indices::
+            chunk_text = all_data['documents'][idx]
+            file_name = all_data['metadatas'][idx].get('source', 'Unknown')
+            page_num = all_data['metadatas'][idx].get('page', '?')
+            sample = self.generate_training_sample(chunk_text, file_name, page_number)
             if sample:
                 samples.append(sample)
                 # Append to file immediately so you don't lose data if it crashes
