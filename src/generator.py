@@ -86,7 +86,7 @@ class RailDataGenerator:
         if num_samples >= total_chunks:
             print(f"only {total_chunks} sample(s) available, so creating {actual_sample_count} unique sample(s)")
 
-        for idx in indices::
+        for idx in indices:
             chunk_text = all_data['documents'][idx]
             file_name = all_data['metadatas'][idx].get('source', 'Unknown')
             page_num = all_data['metadatas'][idx].get('page', '?')
