@@ -30,11 +30,11 @@ class RailDataGenerator:
                     result = response.json()
                     return result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', "")
                 elif response.status_code == 429:
-                    print(f"⚠️ Rate limit hit. Retrying in {delay}s...")
+                    print(f"Rate limit hit. Retrying in {delay}s...")
                 else:
                     print(f"Teacher API Error {response.status_code}: {response.text}")
             except requests.exceptions.Timeout:
-                print("⏰ Request timed out. Retrying...")
+                print("Request timed out. Retrying...")
             except Exception as e:
                 print(f"Request Exception: {e}")
             
@@ -96,7 +96,7 @@ class RailDataGenerator:
                 # Append to file immediately so you don't lose data if it crashes
                 with open(output_path, 'a') as f:
                     f.write(json.dumps(sample) + "\n")
-                print(f"✅ Generated {i+1}/{num_samples}")
+                print(f"Generated {i+1}/{num_samples}")
             
             # MANDATORY COOL-DOWN: 
             # 3 seconds between requests helps stay under the 20 RPM limit
