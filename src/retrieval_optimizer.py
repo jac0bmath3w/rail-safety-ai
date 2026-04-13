@@ -21,7 +21,7 @@ class RailRetrieverPro:
         else:
             self.reranker = None
 
-    def hybrid_query(self, query, n_initial=25):
+    def hybrid_query(self, query, n_initial=50):
         """
         Combines BM25 and Vector scores using Reciprocal Rank Fusion (RRF).
         """
