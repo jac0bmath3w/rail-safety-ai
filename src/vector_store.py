@@ -75,7 +75,8 @@ class RailVectorVault:
 
         # 1. Vector Search
         vector_res = self.query(question, n_results=n_results * 5, where = where)
-        vector_ids = vector_res['ids'][0]
+        vector_ids = [r['id'] for r in vector_res]
+        # vector_ids = vector_res['ids'][0]
 
         # 2. BM25 Search
         tokenized_query = question.lower().split()
