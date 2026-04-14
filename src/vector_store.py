@@ -6,7 +6,7 @@ from sentence_transformers import CrossEncoder
 from typing import List, Dict, Any, Optional
 
 class RailVectorVault:
-    def __init__(self, embedder_instance, db_path="./vector_db", collection_name = "rail_safety", reranker_model="cross-encoder/ms-marco-MiniLM-L-6-v2", sync_bm25 = True):
+    def __init__(self, embedder_instance, db_path="./vector_db", collection_name = "rail_safety", reranker_model="cross-encoder/ms-marco-MiniLM-L-6-v2", sync_bm25 = True):#, rerank_instruction: str = "Query: "):
         # We pass the embedder IN. This is called 'Dependency Injection'.
         self.embedder = embedder_instance 
         self.client = chromadb.PersistentClient(path=db_path)
@@ -16,6 +16,7 @@ class RailVectorVault:
         self.metadatas = []
         self.ids = []
         self.bm25 = None
+        # self.rerank_instruction = rerank_instruction
         self.reranker = CrossEncoder(reranker_model, device='cuda' if torch.cuda.is_available() else 'cpu')
         if sync_bm25:
             self._refresh_search_indices()
@@ -149,8 +150,12 @@ class RailVectorVault:
         if not candidates: return []
 
         # Prepare pairs for Reranker
-        pairs = [[question, c['text']] for c in candidates]
-        scores = self.reranker.predict(pairs)
+        # pairs = [[question, c['text']] for c in candidates]
+
+        if "bge" in self.reranker_model.lower():
+            pairs = [[f"Query: {question}", f"Passage: {c['text']}"] for c in candidates]
+        else:
+            pairs = [[question, c['text']] for c in candidates]
 
         # Sort by reranker score
         ranked_indices = np.argsort(scores)[::-1][:n_results]
