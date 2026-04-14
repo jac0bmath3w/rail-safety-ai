@@ -42,7 +42,7 @@ class RailVectorVault:
             ids=ids
         )
         
-    def query(self, question, n_results=3):
+    def query(self, question: str, n_results: int = 5, where: Optional[Dict] = None) -> List[Dict]:
         """
         Method1 : Performs a semantic search.
         1. Embeds the question using the injected embedder.
@@ -53,49 +53,97 @@ class RailVectorVault:
         query_list = query_vector.tolist() if hasattr(query_vector, 'tolist') else query_vector
         
         # Search the collection
-        results = self.collection.query(
+        res = self.collection.query(
             query_embeddings=query_list,
-            n_results=n_results
+            n_results=n_results,
+            where = where
         )
-        return results
+
+        formatted = []
+        if res['documents']:
+            for i in range(len(res['documents'][0])):
+                formatted.append({
+                    "id": res['ids'][0][i],
+                    "text": res['documents'][0][i],
+                    "metadata":res['metadatas'][0][i]
+        return formatted
         
-    def hybrid_query(self, question: str, n_results: int = 5, rrf_k: int = 60) -> List[Dict]:
+    def hybrid_query(self, question: str, n_results: int = 5, where: Optional[Dict] = None, rrf_k: int = 60) -> List[Dict]:
         """Method 2: Hybrid Search (BM25 + Vector) using Reciprocal Rank Fusion."""
         if not self.bm25:
             return self.query(question, n_results=n_results)
 
         # 1. Vector Search
-        vector_res = self.query(question, n_results=n_results * 2)
+        vector_res = self.query(question, n_results=n_results * 5, where = where)
         vector_ids = vector_res['ids'][0]
 
         # 2. BM25 Search
         tokenized_query = question.lower().split()
         bm25_scores = self.bm25.get_scores(tokenized_query)
-        top_bm25_indices = np.argsort(bm25_scores)[::-1][:n_results * 2]
-        bm25_ids = [self.ids[i] for i in top_bm25_indices]
 
-        # 3. Reciprocal Rank Fusion
+            # Filter BM25 by metadata if 'where' is provided
         rank_scores = {}
+        
+        # Map indices back to IDs for the BM25 loop
+        for i, (id_, meta) in enumerate(zip(self.ids, self.metadatas)):
+            # Simple metadata filter for 'source' if provided
+            if where and 'source' in where:
+                if meta.get('source') != where['source']:
+                    continue
+            
+            # Reciprocal Rank for BM25 (using score-based sorting for rank)
+            # This is a simplified version of RRF integration
+            pass 
+
+        # Correct RRF Implementation
+        bm25_top_indices = np.argsort(bm25_scores)[::-1]
+        bm25_count = 0
+        for rank, idx in enumerate(bm25_top_indices):
+            id_ = self.ids[idx]
+            meta = self.metadatas[idx]
+            
+            # Filter
+            if where and 'source' in where and meta.get('source') != where['source']:
+                continue
+                
+            rank_scores[id_] = rank_scores.get(id_, 0) + 1 / (rrf_k + bm25_count + 1)
+            bm25_count += 1
+            if bm25_count >= n_results * 5: break
+
         for rank, id_ in enumerate(vector_ids):
             rank_scores[id_] = rank_scores.get(id_, 0) + 1 / (rrf_k + rank + 1)
-        for rank, id_ in enumerate(bm25_ids):
-            rank_scores[id_] = rank_scores.get(id_, 0) + 1 / (rrf_k + rank + 1)
 
-        # Sort and return combined results with metadata
         sorted_ids = sorted(rank_scores.items(), key=lambda x: x[1], reverse=True)[:n_results]
         
-        final_results = []
+        # Hydrate results
         id_to_data = {self.ids[i]: (self.documents[i], self.metadatas[i]) for i in range(len(self.ids))}
-        for id_, _ in sorted_ids:
-            doc, meta = id_to_data[id_]
-            final_results.append({"id": id_, "text": doc, "metadata": meta})
-            
-        return final_results
+        return [{"id": k, "text": id_to_data[k][0], "metadata": id_to_data[k][1]} for k, v in sorted_ids]
 
-    def rerank_query(self, question: str, n_results: int = 5, n_initial: int = 25) -> List[Dict]:
+        # top_bm25_indices = np.argsort(bm25_scores)[::-1][:n_results * 2]
+        # bm25_ids = [self.ids[i] for i in top_bm25_indices]
+
+        # # 3. Reciprocal Rank Fusion
+        # rank_scores = {}
+        # for rank, id_ in enumerate(vector_ids):
+        #     rank_scores[id_] = rank_scores.get(id_, 0) + 1 / (rrf_k + rank + 1)
+        # for rank, id_ in enumerate(bm25_ids):
+        #     rank_scores[id_] = rank_scores.get(id_, 0) + 1 / (rrf_k + rank + 1)
+
+        # # Sort and return combined results with metadata
+        # sorted_ids = sorted(rank_scores.items(), key=lambda x: x[1], reverse=True)[:n_results]
+        
+        # final_results = []
+        # id_to_data = {self.ids[i]: (self.documents[i], self.metadatas[i]) for i in range(len(self.ids))}
+        # for id_, _ in sorted_ids:
+        #     doc, meta = id_to_data[id_]
+        #     final_results.append({"id": id_, "text": doc, "metadata": meta})
+            
+        # return final_results
+
+    def rerank_query(self, question: str, n_results: int = 5, n_initial: int = 25, where: Optional[Dict] = None) -> List[Dict]:
         """Method 3: Hybrid Search + Cross-Encoder Reranking."""
         # Get candidates from Hybrid
-        candidates = self.hybrid_query(question, n_results=n_initial)
+        candidates = self.hybrid_query(question, n_results=n_initial, where = where)
         if not candidates: return []
 
         # Prepare pairs for Reranker
