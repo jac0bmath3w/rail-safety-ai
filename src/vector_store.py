@@ -156,7 +156,7 @@ class RailVectorVault:
             pairs = [[f"Query: {question}", f"Passage: {c['text']}"] for c in candidates]
         else:
             pairs = [[question, c['text']] for c in candidates]
-
+        scores = self.reranker.predict(pairs)
         # Sort by reranker score
         ranked_indices = np.argsort(scores)[::-1][:n_results]
         return [candidates[i] for i in ranked_indices]
