@@ -17,7 +17,7 @@ class RailVectorVault:
         self.ids = []
         self.bm25 = None
         self.reranker = CrossEncoder(reranker_model, device='cuda' if torch.cuda.is_available() else 'cpu')
-        if sync_bm_25:
+        if sync_bm25:
             self._refresh_search_indices()
     def _refresh_search_indices(self):
         db_data = self.collection.get()
