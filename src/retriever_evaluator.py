@@ -26,7 +26,8 @@ class RailRetrieverEvaluator:
 
             # 1. Test Vector
             vec_res = self.vault.query(query, n_results=10)
-            self._update_metrics(metrics["Vector"], vec_res['ids'][0], target_id)
+            vec_ids = [r['id'] for r in vec_res]
+            self._update_metrics(metrics["Vector"], vec_ids, target_id)
 
             # 2. Test Hybrid
             hyb_res = self.vault.hybrid_query(query, n_results=10)
