@@ -54,7 +54,7 @@ class RailVectorVault:
         
         # Search the collection
         results = self.collection.query(
-            query_embeddings=query_list
+            query_embeddings=query_list,
             n_results=n_results
         )
         return results
