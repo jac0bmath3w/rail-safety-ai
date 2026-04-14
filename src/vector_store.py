@@ -66,6 +66,7 @@ class RailVectorVault:
                     "id": res['ids'][0][i],
                     "text": res['documents'][0][i],
                     "metadata":res['metadatas'][0][i]
+                })
         return formatted
         
     def hybrid_query(self, question: str, n_results: int = 5, where: Optional[Dict] = None, rrf_k: int = 60) -> List[Dict]:
