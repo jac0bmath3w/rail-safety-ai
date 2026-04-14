@@ -1,8 +1,8 @@
 import chromadb
 import numpy as np
 import torch
-from rank_bm25 import BM250kapi
-from sentence_transformers import CrossEncodder
+from rank_bm25 import BM25Okapi
+from sentence_transformers import CrossEncoder
 from typing import List, Dict, Any, Optional
 
 class RailVectorVault:
