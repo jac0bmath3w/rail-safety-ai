@@ -7,7 +7,7 @@ class RailRetrieverEvaluator:
     def __init__(self, vault):
         self.vault = vault
 
-    def evaluate(self, eval_set_path: str, batch_size: int = 16):
+    def evaluate(self, eval_set_path: str, batch_size: int = 16, n_initial = 30):
         """
         Evaluates Vector, Hybrid, and Rerank methods against the Golden Set.
         """
@@ -29,7 +29,7 @@ class RailRetrieverEvaluator:
 
             batch_vec_results = self.vault.query(batch_qs, n_results=10)
             batch_hyb_results = self.vault.hybrid_query(batch_qs, n_results=10)
-            batch_rerank_results = self.vault.rerank_query(batch_qs, n_results=5, n_initial=25)
+            batch_rerank_results = self.vault.rerank_query(batch_qs, n_results=5, n_initial=n_initial)
 
             for j in range(len(batch_qs)):
                 # Vector Metrics
