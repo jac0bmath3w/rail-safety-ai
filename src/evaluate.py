@@ -34,7 +34,7 @@ class RailAuditJudge:
         [RUBRIC]
         1. FAITHFULNESS (1-5): Is the answer derived ONLY from the context provided in the thinking process? (1 = Hallucinated/Used external knowledge, 5 = Perfectly Grounded)
         2. REGULATORY ACCURACY (1-5): Compare the AI Answer to the Ground Truth Reference. Does the logic match? (1 = Dangerous/Incorrect, 5 = Expert accuracy)
-        3. CITATION QUALITY (1-5): Did the model cite specific Pages/Sections correctly as per the Thinking Process?
+        3. CITATION QUALITY (1-5): Did the model cite specific Pages/Sections correctly within the final answer as per the Thinking Process?
         
         Provide your critique and scores in a structured JSON format.
         """
