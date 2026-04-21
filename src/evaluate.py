@@ -7,7 +7,7 @@ import time
 from collections import defaultdict
 
 class RailAuditJudge:
-    def __init__(self, audit_function, vault, api_key="", judge_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"):
+    def __init__(self, audit_function, model, tokenizer, vault, api_key="", judge_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"):
         """
         RailAuditJudge: Benchmarks the Auditor's reasoning quality using a "Teacher" LLM as a Judge.
         """
@@ -94,6 +94,8 @@ class RailAuditJudge:
                 # Inference with the specific source_filter for this manual
                 batch_responses = self.audit_func(
                     questions, 
+                    self.model, 
+                    self.tokenizer,
                     self.vault, 
                     method='rerank', 
                     n_results=5,
