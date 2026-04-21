@@ -15,6 +15,8 @@ class RailAuditJudge:
         self.vault = vault
         self.api_key = api_key
         self.judge_url = judge_url
+        self.model = model
+        self.tokenizer = tokenizer
 
     def generate_judge_prompt(self, question, thinking_process, answer, ground_truth):
         """Creates a professional rubric for the Judge LLM."""
@@ -94,9 +96,9 @@ class RailAuditJudge:
                 # Inference with the specific source_filter for this manual
                 batch_responses = self.audit_func(
                     questions, 
-                    self.model, 
-                    self.tokenizer,
                     self.vault, 
+                    self.tokenizer,
+                    self.model, 
                     method='rerank', 
                     n_results=5,
                     source_filter=source_file, 
