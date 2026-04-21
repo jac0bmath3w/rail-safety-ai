@@ -121,6 +121,8 @@ class RailAuditJudge:
                     results.append({
                         "question": item['question'],
                         "source_file": source_file,
+                        "ground_truth": ground_truth, 
+                        "ai_thinking": thinking,
                         "ai_answer": answer,
                         "faithfulness": judgment['faithfulness'],
                         "accuracy": judgment['accuracy'],
