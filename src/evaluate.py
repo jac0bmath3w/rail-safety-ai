@@ -149,11 +149,17 @@ class RailAuditJudge:
                 
                 torch.cuda.empty_cache()
                 print(f"   - Batch {i//batch_size + 1}/{(len(items)-1)//batch_size + 1} complete.")
-            if source_file is not None:
-                name, extension = os.path.splitext(source_file)
-            else:
-                name = 'all'
-            pd.DataFrame(results_source).to_csv(f'{save_path}/evaluation_samples_from_source_{name}.csv', index = False)
+            if save_path and results_source:
+                if source_file:
+                    # Remove extension from filename for the CSV name
+                    name = os.path.splitext(os.path.basename(source_file))[0]
+                else:
+                    name = 'all'
+                
+                csv_filename = os.path.join(save_path, f'evaluation_samples_from_source_{name}.csv')
+                pd.DataFrame(results_source).to_csv(csv_filename, index=False)
+                print(f" >> Saved checkpoint to {csv_filename}")
+            # pd.DataFrame(results_source).to_csv(f'{save_path}/evaluation_samples_from_source_{name}.csv', index = False)
             
         return pd.DataFrame(results)
 
