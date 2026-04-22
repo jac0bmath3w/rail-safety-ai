@@ -70,7 +70,7 @@ class RailAuditJudge:
         
         return {"faithfulness": 0, "accuracy": 0, "citation": 0, "critique": "API Failure"}
 
-    def run_benchmark(self, eval_set_path, num_samples=100, batch_size=4, use_dynamic_filter=True):
+    def run_benchmark(self, eval_set_path, num_samples=100, batch_size=4, use_dynamic_filter=True, save_path = None):
         """
         Runs E2E evaluation. If use_dynamic_filter=True, it automatically uses the 
         correct source file for every question based on the JSON metadata.
@@ -86,9 +86,13 @@ class RailAuditJudge:
 
         results = []
         
+        if save_path is not None:
+            os.makedirs(save_path, exist_ok = True)
+
+        
         for source_file, items in grouped_data.items():
             print(f"\n Evaluating {len(items)} samples for source: {source_file or 'ALL (Unfiltered)'}")
-            
+            results_source = []
             for i in range(0, len(items), batch_size):
                 batch = items[i : i + batch_size]
                 questions = [item['question'] for item in batch]
@@ -130,9 +134,26 @@ class RailAuditJudge:
                         "critique": judgment['critique'],
                         "thinking": thinking
                     })
+                    results_source.append({
+                        "question": item['question'],
+                        "source_file": source_file,
+                        "ground_truth": ground_truth, 
+                        "ai_thinking": thinking,
+                        "ai_answer": answer,
+                        "faithfulness": judgment['faithfulness'],
+                        "accuracy": judgment['accuracy'],
+                        "citation": judgment['citation'],
+                        "critique": judgment['critique'],
+                        "thinking": thinking
+                    })
                 
                 torch.cuda.empty_cache()
                 print(f"   - Batch {i//batch_size + 1}/{(len(items)-1)//batch_size + 1} complete.")
+            if source_file is not None:
+                name, extension = os.path.splitext(source_file)
+            else:
+                name = 'all'
+            pd.DataFrame(results_source).to_csv(f'{save_path}/evaluation_samples_from_source_{name}.csv', index = False)
             
         return pd.DataFrame(results)
 
