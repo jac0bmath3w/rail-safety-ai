@@ -6,7 +6,8 @@ from sentence_transformers import CrossEncoder
 from typing import List, Dict, Any, Optional
 
 class RailVectorVault:
-    def __init__(self, embedder_instance, db_path="./vector_db", collection_name = "rail_safety", reranker_model="cross-encoder/ms-marco-MiniLM-L-6-v2", sync_bm25 = True):#, rerank_instruction: str = "Query: "):
+    def __init__(self, embedder_instance, db_path="./vector_db", collection_name = "rail_safety", reranker_model = 'BAAI/bge-reranker-v2-m3', sync_bm25 = True):#, rerank_instruction: str = "Query: "):
+        #  reranker_model="cross-encoder/ms-marco-MiniLM-L-6-v2",
         self.embedder = embedder_instance 
         self.client = chromadb.PersistentClient(path=db_path)
         self.collection = self.client.get_or_create_collection(name=collection_name)
