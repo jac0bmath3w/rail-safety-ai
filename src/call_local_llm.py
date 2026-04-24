@@ -41,10 +41,26 @@ def run_integrated_audit(questions, vault, tokenizer, model, method = 'rerank', 
         context = "\n---\n".join(context_parts)
 
         # Build the message list for this specific question
+        # messages = [
+        #     {"role": "system", "content": "You are a Senior FRA Safety Consultant. Use your 4-Phase Thinking Process. Answer ONLY based on the provided context."},
+        #     {"role": "user", "content": f"CONTEXT FROM MANUALS:\n{context}\n\nQUESTION:\n{question}"},
+        # ]
         messages = [
-            {"role": "system", "content": "You are a Senior FRA Safety Consultant. Use your 4-Phase Thinking Process. Answer ONLY based on the provided context."},
-            {"role": "user", "content": f"CONTEXT FROM MANUALS:\n{context}\n\nQUESTION:\n{question}"},
-        ]
+                        {
+                            "role": "system", 
+                            "content": (
+                                "You are a Senior FRA Safety Consultant. Use your 4-Phase Thinking Process. "
+                                "Structure your response exactly as follows:\n"
+                                "[THINKING PROCESS]\n"
+                                "<detailed reasoning>\n\n"
+                                "[ANSWER]\n"
+                                "<final response with inline citations>\n\n"
+                                "Answer ONLY based on the provided context. In the [ANSWER] section, you MUST "
+                                "cite the source and page number for every claim (e.g., [SOURCE: X, PAGE: Y])."
+                            )
+                        },
+                        {"role": "user", "content": f"CONTEXT FROM MANUALS:\n{context}\n\nQUESTION:\n{question}"},
+                    ]
         all_messages.append(messages)
 
     # # Extract text and metadata for the prompt
