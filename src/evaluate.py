@@ -5,6 +5,7 @@ import torch
 import requests
 import time
 from collections import defaultdict
+import os
 
 class RailAuditJudge:
     def __init__(self, audit_function, model, tokenizer, vault, api_key="", judge_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"):
