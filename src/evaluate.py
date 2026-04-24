@@ -111,15 +111,25 @@ class RailAuditJudge:
                 )
                 
                 for idx, raw_output in enumerate(batch_responses):
+                    clean_output = raw_output.split("assistant\n\n")[-1]
                     item = batch[idx]
                     ground_truth = item.get('answer_chunk', "N/A")
-                    
-                    try:
-                        parts = raw_output.split("[ANSWER]")
+                    clean_output = raw_output.split("assistant\n\n")[-1] 
+    
+                    if "[ANSWER]" in clean_output:
+                        parts = clean_output.split("[ANSWER]")
+                        # Strip the header and any leading/trailing whitespace
                         thinking = parts[0].replace("[THINKING PROCESS]", "").strip()
                         answer = parts[-1].strip()
-                    except Exception:
-                        thinking, answer = "Parse Error", raw_output
+                    else:
+                        thinking, answer = "Parse Error: No [ANSWER] tag", clean_output
+                    
+                    # try:
+                    #     parts = raw_output.split("[ANSWER]")
+                    #     thinking = parts[0].replace("[THINKING PROCESS]", "").strip()
+                    #     answer = parts[-1].strip()
+                    # except Exception:
+                    #     thinking, answer = "Parse Error", raw_output
 
                     judgment = self.get_judgment(self.generate_judge_prompt(item['question'], thinking, answer, ground_truth))
 
