@@ -58,6 +58,7 @@ def run_integrated_audit(questions, vault, tokenizer, model, method = 'rerank', 
         tokenizer.pad_token = tokenizer.eos_token
 
     inputs = tokenizer(prompts, padding=True, truncation=True, return_tensors="pt").to("cuda")
+    input_len = inputs.input_ids.shape[1]
 
     with torch.no_grad():
         outputs = model.generate(
@@ -67,6 +68,6 @@ def run_integrated_audit(questions, vault, tokenizer, model, method = 'rerank', 
             temperature=0,
             do_sample=False
         )
-
-    response = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+    generated_tokens = outputs[:, input_len:]
+    response = tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)
     return response#[0].split("assistant")[-1].strip()
